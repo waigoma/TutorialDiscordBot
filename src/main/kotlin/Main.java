@@ -7,10 +7,14 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.dv8tion.jda.api.requests.GatewayIntent;
 
 import javax.security.auth.login.LoginException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 public class Main extends ListenerAdapter {
     private static final String TOKEN = ""; //Write BotToken
     private static final String COMMAND_PREFIX = "!";
+
+    private static final SimpleDateFormat format = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 
     // throwsでやると、jarにした時見つからなくてエラーはくっぽい？
     public static void main(String[] args) {
@@ -39,18 +43,23 @@ public class Main extends ListenerAdapter {
                 //メッセージ送信
                 channel.sendMessage(event.getMember().getEffectiveName() + "さん、こんにちは！").queue();
 
-                long time = System.currentTimeMillis();
                 channel.sendMessage(event.getMember() + "さん、こんにちは！") /* => RestAction<Message> */
                         .queue(response /* => Message */ -> {
-                            response.editMessageFormat("Pong: %d ms", System.currentTimeMillis() - time).queue();
+                            response.editMessageFormat("現在時刻は " + format.format(Calendar.getInstance().getTime()) + "です。").queue();
                         });
                 break;
 
             case COMMAND_PREFIX + "exit": //!exitの時
                 channel.sendMessage("プログラムを終了します。").queue();
-                System.exit(0);
-                break;
+                long time = System.currentTimeMillis();
+
+                while (exiting(time));
         }
 
+    }
+
+    private boolean exiting(long time){
+        if (System.currentTimeMillis() - time > 500) System.exit(0);
+        return true;
     }
 }
